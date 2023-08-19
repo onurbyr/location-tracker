@@ -9,12 +9,15 @@ import {
 import React, {useState} from 'react';
 import {colors} from '../constants';
 import {TextInput, Button} from 'react-native-paper';
-import auth from '@react-native-firebase/auth';
+import {useSelector} from 'react-redux';
+import {signIn, loginStatus} from '../redux/features/loginSlice';
+import store from '../redux/store';
 
-const Login = () => {
+const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const status = useSelector(loginStatus);
 
   const login = async () => {
     if (!email) {
@@ -25,24 +28,10 @@ const Login = () => {
       ToastAndroid.show('Password cannot be empty', ToastAndroid.SHORT);
       return;
     }
-    try {
-      await auth().signInWithEmailAndPassword(email, password);
-      console.log('successfull login');
-    } catch (error) {
-      switch (error.code) {
-        case 'auth/invalid-email':
-          ToastAndroid.show(
-            'That email address is invalid!',
-            ToastAndroid.SHORT,
-          );
-          break;
-        case 'auth/user-not-found' || 'auth/wrong-password':
-          ToastAndroid.show('Email or password wrong!', ToastAndroid.SHORT);
-          break;
-        default:
-          ToastAndroid.show(error.message, ToastAndroid.SHORT);
-          break;
-      }
+    await store.dispatch(signIn({email, password}));
+    const isLoggedIn = store.getState().login.status;
+    if (isLoggedIn === 'succeeded') {
+      navigation.navigate('Tabs');
     }
   };
 
@@ -85,7 +74,9 @@ const Login = () => {
           icon="login"
           mode="contained"
           onPress={login}
-          style={styles.loginButton}>
+          style={styles.loginButton}
+          loading={status === 'loading'}
+          disabled={status === 'loading'}>
           Login
         </Button>
         <TouchableOpacity style={styles.forgetPasswordContainer}>
