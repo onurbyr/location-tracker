@@ -1,14 +1,21 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React from 'react';
+import Navigator from './src/screens/Navigator';
+import {
+  MD3LightTheme as DefaultTheme,
+  Provider as PaperProvider,
+} from 'react-native-paper';
 
 const App = () => {
+  const theme = {
+    ...DefaultTheme,
+    dark: false,
+  };
+
   return (
-    <View>
-      <Text>App</Text>
-    </View>
-  )
-}
+    <PaperProvider theme={theme}>
+      <Navigator />
+    </PaperProvider>
+  );
+};
 
-export default App
-
-const styles = StyleSheet.create({})
+export default App;
