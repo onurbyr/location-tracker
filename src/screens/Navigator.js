@@ -5,6 +5,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './Login';
 import Home from './Home';
 import Profile from './Profile';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {colors} from '../constants';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -27,9 +29,31 @@ const ProfileTab = () => {
 
 function Tabs() {
   return (
-    <Tab.Navigator screenOptions={{headerShown: false}}>
-      <Tab.Screen name="HomeTab" component={HomeTab} />
-      <Tab.Screen name="ProfileTab" component={ProfileTab} />
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.yellow,
+      }}>
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeTab}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({color, size}) => (
+            <MaterialIcons name="location-on" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileTab}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({color, size}) => (
+            <MaterialIcons name="person" color={color} size={size} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
