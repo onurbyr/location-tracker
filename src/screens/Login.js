@@ -4,14 +4,47 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import React, {useState} from 'react';
 import {colors} from '../constants';
 import {TextInput, Button} from 'react-native-paper';
+import auth from '@react-native-firebase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const login = async () => {
+    if (!email) {
+      ToastAndroid.show('Email address cannot be empty', ToastAndroid.SHORT);
+      return;
+    }
+    if (!password) {
+      ToastAndroid.show('Password cannot be empty', ToastAndroid.SHORT);
+      return;
+    }
+    try {
+      await auth().signInWithEmailAndPassword(email, password);
+      console.log('successfull login');
+    } catch (error) {
+      switch (error.code) {
+        case 'auth/invalid-email':
+          ToastAndroid.show(
+            'That email address is invalid!',
+            ToastAndroid.SHORT,
+          );
+          break;
+        case 'auth/user-not-found' || 'auth/wrong-password':
+          ToastAndroid.show('Email or password wrong!', ToastAndroid.SHORT);
+          break;
+        default:
+          ToastAndroid.show(error.message, ToastAndroid.SHORT);
+          break;
+      }
+    }
+  };
 
   return (
     <ScrollView>
@@ -37,11 +70,21 @@ const Login = () => {
           onChangeText={text => setPassword(text)}
           mode="outlined"
           style={styles.passwordInput}
+          secureTextEntry={secureTextEntry}
+          right={
+            password ? (
+              <TextInput.Icon
+                icon="eye"
+                forceTextInputFocus={false}
+                onPress={() => setSecureTextEntry(prevState => !prevState)}
+              />
+            ) : null
+          }
         />
         <Button
           icon="login"
           mode="contained"
-          onPress={() => console.log('Pressed')}
+          onPress={login}
           style={styles.loginButton}>
           Login
         </Button>
