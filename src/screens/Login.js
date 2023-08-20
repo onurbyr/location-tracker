@@ -9,14 +9,14 @@ import {
 import React, {useState} from 'react';
 import {colors} from '../constants';
 import {TextInput, Button} from 'react-native-paper';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {signIn, loginStatus} from '../redux/features/loginSlice';
-import store from '../redux/store';
 
-const Login = ({navigation}) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const dispatch = useDispatch();
   const status = useSelector(loginStatus);
 
   const login = async () => {
@@ -28,11 +28,7 @@ const Login = ({navigation}) => {
       ToastAndroid.show('Password cannot be empty', ToastAndroid.SHORT);
       return;
     }
-    await store.dispatch(signIn({email, password}));
-    const isLoggedIn = store.getState().login.status;
-    if (isLoggedIn === 'succeeded') {
-      navigation.navigate('Tabs');
-    }
+    dispatch(signIn({email, password}));
   };
 
   return (
