@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, View, ToastAndroid} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import Geolocation from '@react-native-community/geolocation';
 import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
+import {Button} from 'react-native-paper';
 
 Mapbox.setAccessToken(
   'pk.eyJ1IjoibW90bzEyIiwiYSI6ImNsbGpleW1razF1cnMzZ21naWlyYnVnbWMifQ.y8aUKafZWu9sY9o8aiVXBw',
@@ -10,6 +11,8 @@ Mapbox.setAccessToken(
 
 const Home = () => {
   const [currentCoords, setCurrentCoords] = useState([0, 0]);
+  const [isTrackingEnabled, setIsTrackingEnabled] = useState(true);
+
   useEffect(() => {
     checkLocationPermission();
   }, []);
@@ -29,10 +32,9 @@ const Home = () => {
       fastInterval: 5000,
     })
       .then(data => {
-        getCurrentLocation();
+        // getCurrentLocation();
       })
       .catch(err => {
-        console.log(err.message);
         if (err.code === 'ERR00') {
           ToastAndroid.show(
             'You have to enable gps for using the app',
@@ -68,10 +70,29 @@ const Home = () => {
           animationMode="flyTo"
           animationDuration={3000}
         />
-        <Mapbox.PointAnnotation id="marker" coordinate={currentCoords}>
-          <View />
-        </Mapbox.PointAnnotation>
+        <Mapbox.UserLocation
+          visible={true}
+          androidRenderMode="normal"
+          // minDisplacement={5}
+          onUpdate={location => {
+            console.log(location);
+            setCurrentCoords([
+              location.coords.longitude,
+              location.coords.latitude,
+            ]);
+          }}
+        />
       </Mapbox.MapView>
+      <Button
+        onPress={() => {
+          setIsTrackingEnabled(!isTrackingEnabled);
+          isTrackingEnabled
+            ? Mapbox.locationManager.stop()
+            : Mapbox.locationManager.start();
+        }}>
+        {isTrackingEnabled ? 'Disable' : 'Enable'} Tracking
+      </Button>
+      <Button onPress={() => getCurrentLocation()}>Update Location</Button>
     </View>
   );
 };

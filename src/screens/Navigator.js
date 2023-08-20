@@ -41,7 +41,7 @@ function Tabs() {
         name="HomeTab"
         component={HomeTab}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Map',
           tabBarIcon: ({color, size}) => (
             <MaterialIcons name="location-on" color={color} size={size} />
           ),
