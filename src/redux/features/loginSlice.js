@@ -8,7 +8,7 @@ const initialState = {
 };
 
 export const signIn = createAsyncThunk(
-  'login/login',
+  'login/signIn',
   async (body, {rejectWithValue}) => {
     try {
       await auth().signInWithEmailAndPassword(body.email, body.password);
