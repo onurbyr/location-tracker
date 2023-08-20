@@ -8,6 +8,8 @@ import Profile from './Profile';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {colors} from '../constants';
 import auth from '@react-native-firebase/auth';
+import {useDispatch} from 'react-redux';
+import {saveEmail} from '../redux/features/loginSlice';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -63,11 +65,16 @@ export default function Navigator() {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const dispatch = useDispatch();
 
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);
     if (initializing) setInitializing(false);
+    //Giriş yapıldı ise email kaydedildi
+    if (user) {
+      dispatch(saveEmail(user.email));
+    }
   }
 
   useEffect(() => {

@@ -5,7 +5,6 @@ import {ToastAndroid} from 'react-native';
 const initialState = {
   status: 'uninitialized',
   email: '',
-  password: '',
 };
 
 export const signIn = createAsyncThunk(
@@ -13,7 +12,6 @@ export const signIn = createAsyncThunk(
   async (body, {rejectWithValue}) => {
     try {
       await auth().signInWithEmailAndPassword(body.email, body.password);
-      return body;
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-email':
@@ -38,6 +36,11 @@ export const signIn = createAsyncThunk(
 export const loginSlice = createSlice({
   name: 'login',
   initialState,
+  reducers: {
+    saveEmail: (state, action) => {
+      state.email = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(signIn.pending, (state, action) => {
@@ -45,8 +48,6 @@ export const loginSlice = createSlice({
       })
       .addCase(signIn.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.email = action.payload.email;
-        state.password = action.payload.password;
       })
       .addCase(signIn.rejected, (state, action) => {
         state.status = 'failed';
@@ -54,6 +55,9 @@ export const loginSlice = createSlice({
   },
 });
 
+export const {saveEmail} = loginSlice.actions;
+
 export default loginSlice.reducer;
 
 export const loginStatus = state => state.login.status;
+export const savedEmail = state => state.login.email;
