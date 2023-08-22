@@ -29,7 +29,7 @@ const Home = () => {
       if (isTrackingEnabled) {
         addLocation(currentDocumentId, currentLocation);
       }
-    }, 1000);
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, [currentDocumentId, isTrackingEnabled, currentLocation]);

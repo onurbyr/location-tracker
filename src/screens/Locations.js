@@ -10,12 +10,12 @@ import {
 import {useSelector, useDispatch} from 'react-redux';
 import {Divider} from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {LoadingScreen} from '../components';
+import {LoadingScreen, EmptyFlatlist} from '../components';
 import {APIKEY} from '../utils/key';
 
 Mapbox.setAccessToken(APIKEY);
 
-const Locations = () => {
+const Locations = ({navigation}) => {
   const dispatch = useDispatch();
   const status = useSelector(getLocationsStatus);
   const locationsData = useSelector(locations);
@@ -29,7 +29,11 @@ const Locations = () => {
       <>
         <TouchableOpacity
           style={styles.flatListButton}
-          onPress={() => handleOnPressItem(item)}>
+          onPress={() =>
+            navigation.navigate('LocationDetail', {
+              selectedLocation: item.locations,
+            })
+          }>
           <Text>{convertDateToDDMMYYYYHHMMSS(item.createdAt.toDate())}</Text>
           <MaterialIcons name="chevron-right" size={24} />
         </TouchableOpacity>
@@ -45,6 +49,8 @@ const Locations = () => {
       data={locationsData}
       renderItem={({item}) => renderItem(item)}
       keyExtractor={(item, index) => index}
+      ListEmptyComponent={EmptyFlatlist}
+      contentContainerStyle={{flexGrow: 1}}
     />
   );
 };

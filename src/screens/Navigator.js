@@ -6,6 +6,7 @@ import Login from './Login';
 import Home from './Home';
 import Profile from './Profile';
 import Locations from './Locations';
+import LocationDetail from './LocationDetail';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {colors} from '../constants';
 import auth from '@react-native-firebase/auth';
@@ -28,6 +29,7 @@ const ProfileTab = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Locations" component={Locations} />
+      <Stack.Screen name="LocationDetail" component={LocationDetail} />
     </Stack.Navigator>
   );
 };
