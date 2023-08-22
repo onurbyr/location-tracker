@@ -1,14 +1,15 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {Button, Avatar} from 'react-native-paper';
 import {useSelector, useDispatch} from 'react-redux';
 import {savedEmail} from '../redux/features/loginSlice';
-import {signOut, logoutStatus} from '../redux/features/profileSlice';
+import {signOut, signOutStatus} from '../redux/features/profileSlice';
 import {colors} from '../constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const Profile = () => {
+const Profile = ({navigation}) => {
   const email = useSelector(savedEmail);
-  const status = useSelector(logoutStatus);
+  const status = useSelector(signOutStatus);
   const dispatch = useDispatch();
 
   return (
@@ -22,15 +23,22 @@ const Profile = () => {
         />
         <Text style={styles.emailText}>{email}</Text>
       </View>
-      <Button
-        icon="logout"
-        mode="contained"
-        onPress={() => dispatch(signOut())}
-        style={styles.logoutButton}
-        loading={status === 'loading'}
-        disabled={status === 'loading'}>
-        Logout
-      </Button>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => navigation.navigate('Locations')}>
+          <Text style={styles.menuButtonText}>Saved Locations</Text>
+          <MaterialIcons name="chevron-right" color="white" size={24} />
+        </TouchableOpacity>
+        <Button
+          icon="logout"
+          mode="contained"
+          onPress={() => dispatch(signOut())}
+          loading={status === 'loading'}
+          disabled={status === 'loading'}>
+          Logout
+        </Button>
+      </View>
     </View>
   );
 };
@@ -56,9 +64,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  logoutButton: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
+  bottomContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    padding: 20,
+  },
+  menuButton: {
+    backgroundColor: colors.yellow,
+    padding: 15,
+    borderRadius: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuButtonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });

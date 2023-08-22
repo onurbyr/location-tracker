@@ -1,14 +1,29 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import {ToastAndroid} from 'react-native';
 
 const initialState = {
-  status: 'uninitialized',
+  signOutStatus: 'uninitialized',
+  getLocationsStatus: 'uninitialized',
+  locations: [],
 };
 
 export const signOut = createAsyncThunk('profile/signOut', async () => {
   await auth().signOut();
 });
+
+export const getLocations = createAsyncThunk(
+  'profile/getLocations',
+  async () => {
+    const data = await firestore().collection('savedlocations').get();
+    const arr = [];
+    data.forEach(documentSnapshot => {
+      arr.push(documentSnapshot.data());
+    });
+    return arr;
+  },
+);
 
 export const profileSlice = createSlice({
   name: 'profile',
@@ -16,13 +31,25 @@ export const profileSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(signOut.pending, (state, action) => {
-        state.status = 'loading';
+        state.signOutStatus = 'loading';
       })
       .addCase(signOut.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.signOutStatus = 'succeeded';
       })
       .addCase(signOut.rejected, (state, action) => {
-        state.status = 'failed';
+        state.signOutStatus = 'failed';
+        ToastAndroid.show(action.error.message, ToastAndroid.SHORT);
+      })
+      .addCase(getLocations.pending, (state, action) => {
+        state.getLocationsStatus = 'loading';
+      })
+      .addCase(getLocations.fulfilled, (state, action) => {
+        state.getLocationsStatus = 'succeeded';
+        state.locations = action.payload;
+      })
+      .addCase(getLocations.rejected, (state, action) => {
+        state.getLocationsStatus = 'failed';
+        state.locations = initialState.locations;
         ToastAndroid.show(action.error.message, ToastAndroid.SHORT);
       });
   },
@@ -30,4 +57,6 @@ export const profileSlice = createSlice({
 
 export default profileSlice.reducer;
 
-export const logoutStatus = state => state.profile.status;
+export const signOutStatus = state => state.profile.signOutStatus;
+export const getLocationsStatus = state => state.profile.getLocationsStatus;
+export const locations = state => state.profile.locations;

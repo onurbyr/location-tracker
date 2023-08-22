@@ -5,19 +5,60 @@ import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
 import {Button} from 'react-native-paper';
 import {isLocationEnabled, hasGms} from 'react-native-device-info';
 import GeoJSON from 'geojson';
+import firestore from '@react-native-firebase/firestore';
 
+Mapbox.setWellKnownTileServer('Mapbox');
 Mapbox.setAccessToken(
   'pk.eyJ1IjoibW90bzEyIiwiYSI6ImNsbGpleW1razF1cnMzZ21naWlyYnVnbWMifQ.y8aUKafZWu9sY9o8aiVXBw',
 );
 
 const Home = () => {
-  const [isTrackingEnabled, setIsTrackingEnabled] = useState(true);
+  const [isTrackingEnabled, setIsTrackingEnabled] = useState(false);
   const [isPermissionsOK, setIsPermissionsOK] = useState(false);
   const [savedLocations, setSavedLocations] = useState([]);
+
+  const [currentLocation, setCurrentLocation] = useState({});
+  const [currentDocumentId, setCurrentDocumentId] = useState('');
 
   useEffect(() => {
     checkLocationPermission();
   }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (isTrackingEnabled) {
+        addLocation(currentDocumentId, currentLocation);
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [currentDocumentId, isTrackingEnabled, currentLocation]);
+
+  const addLocation = (documentId, location) => {
+    firestore()
+      .collection('savedlocations')
+      .doc(documentId)
+      .update({
+        locations: firestore.FieldValue.arrayUnion({
+          ...location,
+          createdAt: firestore.Timestamp.now(),
+        }),
+      })
+      .then(() => {
+        setSavedLocations(current => [...current, location]);
+      });
+  };
+
+  const createNewDoc = () => {
+    firestore()
+      .collection('savedlocations')
+      .add({
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      })
+      .then(docRef => {
+        setCurrentDocumentId(docRef.id);
+      });
+  };
 
   const checkLocationPermission = async () => {
     const isGranted = await Mapbox.requestAndroidLocationPermissions();
@@ -73,7 +114,7 @@ const Home = () => {
         zoomEnabled={true}
         rotateEnabled={true}>
         <Mapbox.Camera
-          followUserLocation={isTrackingEnabled}
+          followUserLocation={true}
           followZoomLevel={16}
           animationMode="flyTo"
           animationDuration={3000}
@@ -83,7 +124,7 @@ const Home = () => {
             androidRenderMode="normal"
             minDisplacement={5}
             onUpdate={location => {
-              setSavedLocations(current => [...current, location.coords]);
+              setCurrentLocation(location.coords);
             }}
           />
         ) : null}
@@ -117,10 +158,10 @@ const Home = () => {
       </Mapbox.MapView>
       <Button
         onPress={() => {
+          if (!isTrackingEnabled) {
+            createNewDoc();
+          }
           setIsTrackingEnabled(!isTrackingEnabled);
-          isTrackingEnabled
-            ? Mapbox.locationManager.stop()
-            : Mapbox.locationManager.start();
         }}>
         {isTrackingEnabled ? 'Disable' : 'Enable'} Tracking
       </Button>

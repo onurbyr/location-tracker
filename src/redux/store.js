@@ -7,4 +7,8 @@ export default configureStore({
     login: loginReducer,
     profile: profileReducer,
   },
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

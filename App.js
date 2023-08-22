@@ -7,8 +7,12 @@ import {
 import {colors} from './src/constants';
 import {Provider} from 'react-redux';
 import store from './src/redux/store';
+import {LogBox} from 'react-native';
 
 const App = () => {
+  LogBox.ignoreLogs([
+    '@rnmapbox/maps: Non v10 implementations are deprecated and will be removed in next version - see https://github.com/rnmapbox/maps/wiki/Deprecated-RNMapboxImpl-Maplibre',
+  ]);
   const theme = {
     ...DefaultTheme,
     dark: false,
