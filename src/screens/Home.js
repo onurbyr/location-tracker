@@ -108,7 +108,7 @@ const Home = () => {
   };
 
   return (
-    <View style={styles.page}>
+    <View style={styles.container}>
       <Mapbox.MapView
         style={styles.map}
         zoomEnabled={true}
@@ -172,7 +172,7 @@ const Home = () => {
 export default Home;
 
 const styles = StyleSheet.create({
-  page: {
+  container: {
     flex: 1,
   },
   map: {
