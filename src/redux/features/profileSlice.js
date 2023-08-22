@@ -9,9 +9,23 @@ const initialState = {
   locations: [],
 };
 
-export const signOut = createAsyncThunk('profile/signOut', async () => {
-  await auth().signOut();
-});
+export const signOut = createAsyncThunk(
+  'profile/signOut',
+  async (_, {getState}) => {
+    //Kullanıcı konum bilgilerini firebase'den sil
+    const useruid = getState().login.useruid;
+    await firestore()
+      .collection('users')
+      .doc(useruid)
+      .collection('savedlocations')
+      .get()
+      .then(querySnapshot => {
+        Promise.all(querySnapshot.docs.map(d => d.ref.delete()));
+      });
+    //Çıkış yap
+    await auth().signOut();
+  },
+);
 
 export const getLocations = createAsyncThunk(
   'profile/getLocations',
