@@ -11,7 +11,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {colors} from '../constants';
 import auth from '@react-native-firebase/auth';
 import {useDispatch} from 'react-redux';
-import {saveEmail} from '../redux/features/loginSlice';
+import {createUserCollection} from '../redux/features/loginSlice';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -77,7 +77,7 @@ export default function Navigator() {
     if (initializing) setInitializing(false);
     //Giriş yapıldı ise email kaydedildi
     if (user) {
-      dispatch(saveEmail(user.email));
+      dispatch(createUserCollection({email: user.email, uid: user.uid}));
     }
   }
 

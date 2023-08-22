@@ -6,11 +6,13 @@ import {Button} from 'react-native-paper';
 import {isLocationEnabled, hasGms} from 'react-native-device-info';
 import GeoJSON from 'geojson';
 import firestore from '@react-native-firebase/firestore';
+import {APIKEY} from '../utils/key';
+import {useruid} from '../redux/features/loginSlice';
+import {useSelector} from 'react-redux';
+import uuid from 'react-native-uuid';
 
 Mapbox.setWellKnownTileServer('Mapbox');
-Mapbox.setAccessToken(
-  'pk.eyJ1IjoibW90bzEyIiwiYSI6ImNsbGpleW1razF1cnMzZ21naWlyYnVnbWMifQ.y8aUKafZWu9sY9o8aiVXBw',
-);
+Mapbox.setAccessToken(APIKEY);
 
 const Home = () => {
   const [isTrackingEnabled, setIsTrackingEnabled] = useState(false);
@@ -19,6 +21,7 @@ const Home = () => {
 
   const [currentLocation, setCurrentLocation] = useState({});
   const [currentDocumentId, setCurrentDocumentId] = useState('');
+  const uid = useSelector(useruid);
 
   useEffect(() => {
     checkLocationPermission();
@@ -36,6 +39,8 @@ const Home = () => {
 
   const addLocation = (documentId, location) => {
     firestore()
+      .collection('users')
+      .doc(uid)
       .collection('savedlocations')
       .doc(documentId)
       .update({
@@ -50,13 +55,17 @@ const Home = () => {
   };
 
   const createNewDoc = () => {
+    const newDocId = uuid.v4();
     firestore()
+      .collection('users')
+      .doc(uid)
       .collection('savedlocations')
-      .add({
+      .doc(newDocId)
+      .set({
         createdAt: firestore.FieldValue.serverTimestamp(),
       })
-      .then(docRef => {
-        setCurrentDocumentId(docRef.id);
+      .then(() => {
+        setCurrentDocumentId(newDocId);
       });
   };
 
@@ -160,6 +169,7 @@ const Home = () => {
         onPress={() => {
           if (!isTrackingEnabled) {
             createNewDoc();
+            setSavedLocations([]);
           }
           setIsTrackingEnabled(!isTrackingEnabled);
         }}>

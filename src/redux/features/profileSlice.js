@@ -15,8 +15,14 @@ export const signOut = createAsyncThunk('profile/signOut', async () => {
 
 export const getLocations = createAsyncThunk(
   'profile/getLocations',
-  async () => {
-    const data = await firestore().collection('savedlocations').get();
+  async (_, {getState}) => {
+    const useruid = getState().login.useruid;
+    const data = await firestore()
+      .collection('users')
+      .doc(useruid)
+      .collection('savedlocations')
+      .get();
+
     const arr = [];
     data.forEach(documentSnapshot => {
       arr.push(documentSnapshot.data());

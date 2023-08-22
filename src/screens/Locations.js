@@ -11,9 +11,6 @@ import {useSelector, useDispatch} from 'react-redux';
 import {Divider} from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {LoadingScreen, EmptyFlatlist} from '../components';
-import {APIKEY} from '../utils/key';
-
-Mapbox.setAccessToken(APIKEY);
 
 const Locations = ({navigation}) => {
   const dispatch = useDispatch();

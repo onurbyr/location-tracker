@@ -1,10 +1,12 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import {ToastAndroid} from 'react-native';
 
 const initialState = {
-  status: 'uninitialized',
+  loginStatus: 'uninitialized',
   email: '',
+  useruid: '',
 };
 
 export const signIn = createAsyncThunk(
@@ -33,31 +35,39 @@ export const signIn = createAsyncThunk(
   },
 );
 
+export const createUserCollection = createAsyncThunk(
+  'login/createUserCollection',
+  async body => {
+    firestore().collection('users').doc(body.uid).set({
+      email: body.email,
+    });
+    return body;
+  },
+);
+
 export const loginSlice = createSlice({
   name: 'login',
   initialState,
-  reducers: {
-    saveEmail: (state, action) => {
-      state.email = action.payload;
-    },
-  },
   extraReducers: builder => {
     builder
       .addCase(signIn.pending, (state, action) => {
-        state.status = 'loading';
+        state.loginStatus = 'loading';
       })
       .addCase(signIn.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.loginStatus = 'succeeded';
       })
       .addCase(signIn.rejected, (state, action) => {
-        state.status = 'failed';
+        state.loginStatus = 'failed';
+      })
+      .addCase(createUserCollection.fulfilled, (state, action) => {
+        state.email = action.payload.email;
+        state.useruid = action.payload.uid;
       });
   },
 });
 
-export const {saveEmail} = loginSlice.actions;
-
 export default loginSlice.reducer;
 
-export const loginStatus = state => state.login.status;
+export const loginStatus = state => state.login.loginStatus;
 export const savedEmail = state => state.login.email;
+export const useruid = state => state.login.useruid;
