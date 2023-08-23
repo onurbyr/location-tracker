@@ -2,9 +2,13 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import GeoJSON from 'geojson';
+import {EmptyFlatlist} from '../components';
 
 const LocationDetail = ({route}) => {
   const {selectedLocation} = route.params;
+  const isLocation = selectedLocation && selectedLocation[0]?.longitude;
+
+  if (!isLocation) return <EmptyFlatlist />;
 
   return (
     <View style={styles.container}>

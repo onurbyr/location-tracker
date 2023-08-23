@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {StyleSheet, View, ToastAndroid} from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
@@ -19,8 +19,8 @@ const Home = () => {
   const [isPermissionsOK, setIsPermissionsOK] = useState(false);
   const [savedLocations, setSavedLocations] = useState([]);
 
-  const [currentLocation, setCurrentLocation] = useState({});
-  const [currentDocumentId, setCurrentDocumentId] = useState('');
+  const currentLocation = useRef({});
+  const currentDocumentId = useRef('');
   const uid = useSelector(useruid);
 
   useEffect(() => {
@@ -30,12 +30,12 @@ const Home = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (isTrackingEnabled) {
-        addLocation(currentDocumentId, currentLocation);
+        addLocation(currentDocumentId.current, currentLocation.current);
       }
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [currentDocumentId, isTrackingEnabled, currentLocation]);
+  }, [isTrackingEnabled]);
 
   const addLocation = (documentId, location) => {
     firestore()
@@ -65,7 +65,8 @@ const Home = () => {
         createdAt: firestore.FieldValue.serverTimestamp(),
       })
       .then(() => {
-        setCurrentDocumentId(newDocId);
+        setIsTrackingEnabled(true);
+        currentDocumentId.current = newDocId;
       });
   };
 
@@ -133,7 +134,7 @@ const Home = () => {
             androidRenderMode="normal"
             minDisplacement={5}
             onUpdate={location => {
-              setCurrentLocation(location.coords);
+              currentLocation.current = location.coords;
             }}
           />
         ) : null}
@@ -166,12 +167,14 @@ const Home = () => {
         </Mapbox.ShapeSource>
       </Mapbox.MapView>
       <Button
+        disabled={!isPermissionsOK}
         onPress={() => {
-          if (!isTrackingEnabled) {
+          if (isTrackingEnabled) {
+            setIsTrackingEnabled(false);
+          } else {
             createNewDoc();
             setSavedLocations([]);
           }
-          setIsTrackingEnabled(!isTrackingEnabled);
         }}>
         {isTrackingEnabled ? 'Disable' : 'Enable'} Tracking
       </Button>
